@@ -1,33 +1,8 @@
 import { KafkaClient, Consumer, Offset, ConsumerGroup } from "kafka-node";
+import { connect } from "./common";
 
-const client = new KafkaClient({
-    kafkaHost: "localhost:9092",
-    autoConnect: true
-});
-client.setMaxListeners(0);
 
-async function connect(): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-        client.on("connect", () => {
-            console.log("connected");
-        });
-        client.on("close", () => {
-            console.log("close");
-        });
-        client.on("error", error => {
-            reject(error);
-        });
-        client.on("reconnect", () => {
-            console.log("erconnect");
-        });
-        client.on("ready", () => {
-            console.log("ready");
-            resolve();
-        });
-    });
-}
-
-async function listenConsumer(topicName): Promise<void> {
+async function listenConsumer(client: KafkaClient, topicName: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         const consumer = new Consumer(client, [{
             topic: topicName,
@@ -49,6 +24,6 @@ async function listenConsumer(topicName): Promise<void> {
 }
 
 (async() => {
-    await connect();
-    await listenConsumer("test");
+    const client = await connect();
+    await listenConsumer(client, "test");
 })();

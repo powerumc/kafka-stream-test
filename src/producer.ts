@@ -1,59 +1,7 @@
 import { CreateTopicResponse, KafkaClient, Producer } from "kafka-node";
+import { connect, createTopic } from "./common";
 
-const client = new KafkaClient({
-    kafkaHost: "localhost:9092",
-    autoConnect: true
-});
-client.setMaxListeners(0);
-
-async function connect(): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-        client.on("connect", () => {
-            console.log("connected");
-        });
-        client.on("close", () => {
-            console.log("close");
-        });
-        client.on("error", error => {
-            reject(error);
-        });
-        client.on("reconnect", () => {
-            console.log("reconnect");
-        });
-        client.on("ready", () => {
-            console.log("ready");
-            resolve();
-        });
-    });
-}
-
-async function createTopic(name): Promise<CreateTopicResponse[]> {
-    return new Promise<CreateTopicResponse[]>((resolve, reject) => {
-        client.createTopics([
-            {
-                topic: name,
-                partitions: 10,
-                replicationFactor: 1,
-                configEntries: [
-                    {
-                        name: 'compression.type',
-                        value: 'gzip'
-                    }
-                ]
-            }
-        ], (error, result) => {
-            if (error) {
-                reject(error);
-                return;
-            }
-
-            console.log(result);
-            resolve(result);
-        });
-    });
-}
-
-async function sendMessage(topicName, message): Promise<any> {
+async function sendMessage(client: KafkaClient, topicName: string, message: string): Promise<any> {
     return new Promise<any>((resolve, reject) => {
         const producer = new Producer(client, {
             requireAcks: 1,
@@ -80,10 +28,10 @@ async function sendMessage(topicName, message): Promise<any> {
 
 (async () => {
     try {
-        await connect();
-        await createTopic("test");
+        const client = await connect();
+        await createTopic(client, "test");
         setInterval(async () => {
-            await sendMessage("test", "Hell World " + Math.floor((Math.random() * 100)));
+            await sendMessage(client, "test", "Hell World " + Math.floor((Math.random() * 100)));
         }, 5000);
     } catch (e) {
         console.error(e);

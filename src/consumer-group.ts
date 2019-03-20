@@ -1,43 +1,25 @@
-import { KafkaClient, Consumer, Offset, ConsumerGroup } from "kafka-node";
+import { KafkaClient, ConsumerGroup } from "kafka-node";
+import { connect } from "./common";
 
-const client = new KafkaClient({
-    kafkaHost: "localhost:9092",
-    autoConnect: true
-});
-client.setMaxListeners(0);
 
-async function connect(): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-        client.on("connect", () => {
-            console.log("connected");
-        });
-        client.on("close", () => {
-            console.log("close");
-        });
-        client.on("error", error => {
-            reject(error);
-        });
-        client.on("reconnect", () => {
-            console.log("erconnect");
-        });
-        client.on("ready", () => {
-            console.log("ready");
-            resolve();
-        });
-    });
-}
-
-async function listenConsumerGroup(topicName): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
+async function listenConsumerGroup(client: KafkaClient, topicName: string | string[]): Promise<void> {
+    return new Promise<void>(() => {
         const consumerGroup = new ConsumerGroup({
             kafkaHost: "localhost:9092",
             autoCommit: true,
             groupId: "test-group",
-            protocol: ["roundrobin"]
+            protocol: ["roundrobin"],
+            maxTickMessages: 1,
+            fetchMaxWaitMs: 1000
         }, topicName);
 
         consumerGroup.on("message", message => {
+            console.log("onmessage");
+            consumerGroup.pause();
             console.log(message);
+            setTimeout(() => {
+                consumerGroup.resume();
+            }, 1000);
         });
         consumerGroup.on("error", error => {
             console.error(error);
@@ -56,6 +38,6 @@ async function listenConsumerGroup(topicName): Promise<void> {
 }
 
 (async() => {
-    await connect();
-    await listenConsumerGroup("test");
+    const client = await connect();
+    await listenConsumerGroup(client, "test");
 })();
