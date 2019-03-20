@@ -1,4 +1,4 @@
-import { KafkaClient, ConsumerGroup } from "kafka-node";
+import { KafkaClient, ConsumerGroup, Offset } from "kafka-node";
 import { connect } from "./common";
 
 

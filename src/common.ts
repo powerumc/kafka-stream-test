@@ -1,30 +1,28 @@
-import { KafkaClient, CreateTopicResponse } from "kafka-node";
+import { KafkaClient, CreateTopicResponse, KafkaClientOptions } from "kafka-node";
 
-export const clientOption = {
+export const clientOption: KafkaClientOptions = {
     kafkaHost: "localhost:9092",
     autoConnect: true
 };
-const client = new KafkaClient(clientOption);
-client.setMaxListeners(0);
 
 export async function connect(): Promise<KafkaClient> {
     return new Promise<KafkaClient>((resolve, reject) => {
-        client.on("connect", () => {
-            console.log("connected");
-        });
-        client.on("close", () => {
-            console.log("close");
-        });
+        const client = new KafkaClient(clientOption);
+        client.setMaxListeners(0);
+
+        client.on("connect", () => { console.log("connect"); });
+        client.on("close", () => { console.log("close"); });
         client.on("error", error => {
             reject(error);
         });
-        client.on("reconnect", () => {
-            console.log("erconnect");
-        });
+        client.on("reconnect", () => { console.log("erconnect"); });
         client.on("ready", () => {
             console.log("ready");
             resolve(client);
         });
+        client.on("brokersChanged", () => { console.log("brokersChanged"); });
+        client.on("socket_error", error => { console.error(error); });
+        client.on("zkReconnect", () => { console.log("zkReconnect"); });
     });
 }
 

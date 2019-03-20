@@ -1,9 +1,9 @@
-import { KafkaClient, Consumer, Offset, ConsumerGroup } from "kafka-node";
+import { KafkaClient, Consumer } from "kafka-node";
 import { connect } from "./common";
 
 
 async function listenConsumer(client: KafkaClient, topicName: string): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<void>(() => {
         const consumer = new Consumer(client, [{
             topic: topicName,
         }], {

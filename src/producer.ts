@@ -1,4 +1,4 @@
-import { CreateTopicResponse, KafkaClient, Producer } from "kafka-node";
+import { KafkaClient, Producer } from "kafka-node";
 import { connect, createTopic } from "./common";
 
 async function sendMessage(client: KafkaClient, topicName: string, message: string): Promise<any> {
