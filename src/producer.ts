@@ -10,14 +10,20 @@ async function connect(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         client.on("connect", () => {
             console.log("connected");
-            resolve();
         });
         client.on("close", () => {
             console.log("close");
         });
         client.on("error", error => {
             reject(error);
-        })
+        });
+        client.on("reconnect", () => {
+            console.log("reconnect");
+        });
+        client.on("ready", () => {
+            console.log("ready");
+            resolve();
+        });
     });
 }
 
@@ -28,12 +34,12 @@ async function createTopic(name): Promise<CreateTopicResponse[]> {
                 topic: name,
                 partitions: 1,
                 replicationFactor: 1,
-                configEntries: [
-                    {
-                        name: 'compression.type',
-                        value: 'gzip'
-                    }
-                ]
+                // configEntries: [
+                //     {
+                //         name: 'compression.type',
+                //         value: 'gzip'
+                //     }
+                // ]
             }
         ], (error, result) => {
             if (error) {
@@ -47,17 +53,23 @@ async function createTopic(name): Promise<CreateTopicResponse[]> {
     });
 }
 
-async function ready(): Promise<Producer> {
-    return new Promise<Producer>((resolve, reject) => {
+async function sendMessage(topicName, message): Promise<any> {
+    return new Promise<any>((resolve, reject) => {
         const producer = new Producer(client);
-        producer.on("ready", () => {
-            console.log("ready");
-            resolve(producer);
+        producer.send([{
+            topic: topicName,
+            messages: message
+        }], (error, data) => {
+            if (error) reject(error);
+
+            console.log("Send message=" + message);
+            console.log(data);
+            resolve(data);
         });
-        producer.on("error", error => {
+        producer.on("error", (error) => {
             console.error(error);
-            reject();
-        })
+            reject(error);
+        });
     });
 }
 
@@ -65,6 +77,7 @@ async function ready(): Promise<Producer> {
     try {
         await connect();
         await createTopic("test");
+        await sendMessage("test", "Hell World " + Math.floor((Math.random() * 100)));
     } catch (e) {
         console.error(e);
     }
