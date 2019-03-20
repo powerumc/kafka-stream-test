@@ -9,17 +9,18 @@ async function listenConsumerGroup(client: KafkaClient, topicName: string | stri
             autoCommit: true,
             groupId: "test-group",
             protocol: ["roundrobin"],
-            maxTickMessages: 1,
+            maxTickMessages: 5,
             fetchMaxWaitMs: 1000
         }, topicName);
 
         consumerGroup.on("message", message => {
-            console.log("onmessage");
-            consumerGroup.pause();
-            console.log(message);
-            setTimeout(() => {
-                consumerGroup.resume();
-            }, 1000);
+            // consumerGroup.pause();
+            // console.log("-------------");
+            console.log(message.value);
+            // setTimeout(() => {
+            //     consumerGroup.commit((error, data) => { console.log("commit " + JSON.stringify(data)); });
+            //     consumerGroup.resume();
+            // }, 5000);
         });
         consumerGroup.on("error", error => {
             console.error(error);
@@ -37,7 +38,7 @@ async function listenConsumerGroup(client: KafkaClient, topicName: string | stri
     });
 }
 
-(async() => {
+(async () => {
     const client = await connect();
     await listenConsumerGroup(client, "test");
 })();

@@ -32,7 +32,7 @@ async function sendMessage(client: KafkaClient, topicName: string, message: stri
         await createTopic(client, "test");
         setInterval(async () => {
             await sendMessage(client, "test", "Hell World " + Math.floor((Math.random() * 100)));
-        }, 5000);
+        }, 1000);
     } catch (e) {
         console.error(e);
     }
