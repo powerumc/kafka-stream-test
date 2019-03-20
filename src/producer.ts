@@ -1,4 +1,4 @@
-import {CreateTopicResponse, KafkaClient, Producer} from "kafka-node";
+import { CreateTopicResponse, KafkaClient, Producer } from "kafka-node";
 
 const client = new KafkaClient({
     kafkaHost: "localhost:9092",
@@ -32,14 +32,14 @@ async function createTopic(name): Promise<CreateTopicResponse[]> {
         client.createTopics([
             {
                 topic: name,
-                partitions: 1,
+                partitions: 10,
                 replicationFactor: 1,
-                // configEntries: [
-                //     {
-                //         name: 'compression.type',
-                //         value: 'gzip'
-                //     }
-                // ]
+                configEntries: [
+                    {
+                        name: 'compression.type',
+                        value: 'gzip'
+                    }
+                ]
             }
         ], (error, result) => {
             if (error) {
@@ -55,14 +55,19 @@ async function createTopic(name): Promise<CreateTopicResponse[]> {
 
 async function sendMessage(topicName, message): Promise<any> {
     return new Promise<any>((resolve, reject) => {
-        const producer = new Producer(client);
+        const producer = new Producer(client, {
+            requireAcks: 1,
+            ackTimeoutMs: 100
+        });
+        const partition = Math.floor(Math.random() * (10 - 1) + 1);
         producer.send([{
             topic: topicName,
-            messages: message
+            messages: message,
+            partition: partition
         }], (error, data) => {
             if (error) reject(error);
 
-            console.log("Send message=" + message);
+            console.log(`Send message=${message} partition=${partition}`);
             console.log(data);
             resolve(data);
         });
@@ -77,7 +82,9 @@ async function sendMessage(topicName, message): Promise<any> {
     try {
         await connect();
         await createTopic("test");
-        await sendMessage("test", "Hell World " + Math.floor((Math.random() * 100)));
+        setInterval(async () => {
+            await sendMessage("test", "Hell World " + Math.floor((Math.random() * 100)));
+        }, 5000);
     } catch (e) {
         console.error(e);
     }

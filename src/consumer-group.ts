@@ -27,28 +27,35 @@ async function connect(): Promise<void> {
     });
 }
 
-async function listenConsumer(topicName): Promise<void> {
+async function listenConsumerGroup(topicName): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-        const consumer = new Consumer(client, [{
-            topic: topicName,
-        }], {
-            autoCommit: true
-        });
-        consumer.on("message", message => {
-            console.log("onmessage");
+        const consumerGroup = new ConsumerGroup({
+            kafkaHost: "localhost:9092",
+            autoCommit: true,
+            groupId: "test-group",
+            protocol: ["roundrobin"]
+        }, topicName);
+
+        consumerGroup.on("message", message => {
             console.log(message);
-            
         });
-        consumer.on("offsetOutOfRange", topic => {
-            console.log(topic);
-        });
-        consumer.on("error", error => {
+        consumerGroup.on("error", error => {
             console.error(error);
+        });
+        consumerGroup.on("offsetOutOfRange", error => {
+            console.log("offsetOutOfRange");
+            console.log(error);
+        });
+        consumerGroup.on("rebalancing", () => {
+            console.log("rebalancing");
+        });
+        consumerGroup.on("rebalanced", () => {
+            console.log("rebalanced");
         });
     });
 }
 
 (async() => {
     await connect();
-    await listenConsumer("test");
+    await listenConsumerGroup("test");
 })();
