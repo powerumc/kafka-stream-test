@@ -7,7 +7,7 @@ const semaphore = new Sema(1);
 async function listenConsumerGroupStream(client, topicName): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         const consumerGroupStream = new ConsumerGroupStream({
-            autoCommit: false,
+            autoCommit: true,
             groupId: "test-group",
             protocol: ["roundrobin"],
             kafkaHost: clientOption.kafkaHost,
@@ -27,15 +27,6 @@ async function listenConsumerGroupStream(client, topicName): Promise<void> {
 
             try {
                 await delay(chunk.value, 2000);
-
-                consumerGroupStream.commit(chunk, true, (error, data) => {
-                    if (error) {
-                        console.error(error);
-                    }
-
-                    console.log("commit");
-                    console.log(data);
-                });
             }
             finally {
                 semaphore.release();
