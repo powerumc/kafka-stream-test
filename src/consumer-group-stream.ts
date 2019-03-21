@@ -14,12 +14,10 @@ async function listenConsumerGroupStream(client, topicName): Promise<void> {
             maxTickMessages: 1
         }, topicName)
 
-        const read = consumerGroupStream.read(1);
         consumerGroupStream.on("close", () => { console.log("close"); });
         consumerGroupStream.on("error", (error) => { console.error(error); });
         consumerGroupStream.on("readable", () => {
             console.log("readable");
-            console.log(read);
         });
 
         consumerGroupStream.on("data", async (chunk) => {
