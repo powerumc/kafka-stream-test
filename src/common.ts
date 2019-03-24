@@ -51,3 +51,16 @@ export async function createTopic(client: KafkaClient, name: string): Promise<Cr
         });
     });
 }
+
+export async function refreshMetadata(client: KafkaClient, name: string) {
+    return new Promise<void>((resolve, reject) => {
+        client.refreshMetadata([name], error => {
+            if (error) {
+                reject(error);
+                return;
+            }
+
+            resolve();
+        });
+    });
+}
