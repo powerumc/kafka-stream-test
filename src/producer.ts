@@ -1,5 +1,5 @@
 import { KafkaClient, Producer } from "kafka-node";
-import { connect, createTopic, refreshMetadata } from "./common";
+import { connect, createTopic, refreshMetadata, loadMetadata } from "./common";
 
 async function sendMessage(client: KafkaClient, topicName: string, message: string): Promise<any> {
     return new Promise<any>((resolve, reject) => {
@@ -11,7 +11,7 @@ async function sendMessage(client: KafkaClient, topicName: string, message: stri
         producer.send([{
             topic: topicName,
             messages: message,
-            // partition: partition, 이 설정을 하면 LeaderNotAvaiable 오류가 남
+            partition: partition
         }], (error, data) => {
             if (error) reject(error);
 
@@ -29,8 +29,9 @@ async function sendMessage(client: KafkaClient, topicName: string, message: stri
 (async () => {
     try {
         const client = await connect();
-        await createTopic(client, "test");
-        await refreshMetadata(client, "test");
+        // await createTopic(client, "test");
+        // await refreshMetadata(client, "test");
+        await loadMetadata(client, "test");
         setInterval(async () => {
             try {
                 await sendMessage(client, "test", "Hell World " + Math.floor((Math.random() * 100)));

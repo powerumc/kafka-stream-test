@@ -7,13 +7,15 @@ async function sendMessage(client: KafkaClient, topicName: string, message: stri
             requireAcks: 1,
             ackTimeoutMs: 100
         });
+        const partition = Math.floor(Math.random() * (10 - 1) + 1);
         producer.send([{
             topic: topicName,
-            messages: message
+            messages: message,
+            partition: partition
         }], (error, data) => {
             if (error) reject(error);
 
-            console.log(`Send message=${message}`);
+            console.log(`Send message=${message} partition=${partition}`);
             console.log(data);
             resolve(data);
         });

@@ -11,14 +11,13 @@ async function listenConsumerGroupStream(client, topicName): Promise<void> {
             groupId: "test-group",
             protocol: ["roundrobin"],
             kafkaHost: clientOption.kafkaHost,
-            maxTickMessages: 1
+            maxTickMessages: 1,
+            retries: 3
         }, topicName)
 
         consumerGroupStream.on("close", () => { console.log("close"); });
         consumerGroupStream.on("error", (error) => { console.error(error); });
-        consumerGroupStream.on("readable", () => {
-            console.log("readable");
-        });
+        consumerGroupStream.on("readable", () => { console.log("readable"); });
 
         consumerGroupStream.on("data", async (chunk) => {
             console.log(chunk.value);
