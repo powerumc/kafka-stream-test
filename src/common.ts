@@ -1,4 +1,4 @@
-import { KafkaClient, CreateTopicResponse, KafkaClientOptions } from "kafka-node";
+import { KafkaClient, CreateTopicResponse, KafkaClientOptions, MetadataResponse } from "kafka-node";
 
 export const clientOption: KafkaClientOptions = {
     kafkaHost: "localhost:9092",
@@ -61,6 +61,18 @@ export async function refreshMetadata(client: KafkaClient, name: string) {
             }
 
             resolve();
+        });
+    });
+}
+
+export async function loadMetadata(client: KafkaClient, name: string): Promise<MetadataResponse> {
+    return new Promise<MetadataResponse>((resolve, reject) => {
+        client.loadMetadataForTopics([name], async (error, result) => {
+            if (error) 
+                return reject(error);
+
+            console.log(result);
+            resolve(result);
         });
     });
 }
