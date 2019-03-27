@@ -33,12 +33,12 @@ export async function createTopic(client: KafkaClient, name: string): Promise<Cr
                 topic: name,
                 partitions: 10,
                 replicationFactor: 1,
-                configEntries: [
-                    {
-                        name: 'compression.type',
-                        value: 'gzip'
-                    }
-                ]
+                // configEntries: [
+                //     {
+                //         name: 'compression.type',
+                //         value: 'gzip'
+                //     }
+                // ]
             }
         ], (error, result) => {
             if (error) {

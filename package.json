@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/powerumc/kafka-stream-test#readme",
   "dependencies": {
-    "kafka-node": "^4.0.2",
+    "kafka-node": "4.0.3",
     "async-lock": "1.2.0",
     "async-sema": "3.0.0"
   },

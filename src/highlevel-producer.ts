@@ -28,7 +28,7 @@ async function sendMessage(client: KafkaClient, topicName: string, message: stri
 (async () => {
     try {
         const client = await connect();
-        //await refreshMetadata(client, "test");
+        await refreshMetadata(client, "test");
         await loadMetadata(client, "test");
         setInterval(async () => {
             try {

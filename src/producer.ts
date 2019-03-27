@@ -28,13 +28,14 @@ async function sendMessage(client: KafkaClient, topicName: string, message: stri
 
 (async () => {
     try {
+        const topic = "test6";
         const client = await connect();
-        // await createTopic(client, "test");
-        // await refreshMetadata(client, "test");
-        await loadMetadata(client, "test");
+        await createTopic(client, topic);
+        await refreshMetadata(client, topic);
+        //await loadMetadata(client, topic);
         setInterval(async () => {
             try {
-                await sendMessage(client, "test", "Hell World " + Math.floor((Math.random() * 100)));
+                await sendMessage(client, topic, "Hell World " + Math.floor((Math.random() * 100)));
             } catch(e) {
                 console.error(e);
             }

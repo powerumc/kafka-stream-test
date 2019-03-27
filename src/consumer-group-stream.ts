@@ -8,7 +8,7 @@ async function listenConsumerGroupStream(client, topicName): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         const consumerGroupStream = new ConsumerGroupStream({
             autoCommit: true,
-            groupId: "test-group",
+            groupId: "test2-group",
             protocol: ["roundrobin"],
             kafkaHost: clientOption.kafkaHost,
             maxTickMessages: 1,
@@ -45,6 +45,7 @@ async function delay(message: string, ms: number): Promise<void> {
 }
 
 (async () => {
+    const topic = "test6";
     const client = await connect();
-    await listenConsumerGroupStream(client, "test");
+    await listenConsumerGroupStream(client, topic);
 })();
